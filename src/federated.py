@@ -46,7 +46,7 @@ if __name__ == '__main__':
     
     # initialize a model, and the agents
     global_model = models.get_model(args.data).to(args.device)
-    global_model.load_state_dict(torch.load('/work/LAS/wzhang-lab/mingl/code/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/final_model.th'))
+    # global_model.load_state_dict(torch.load('/work/LAS/wzhang-lab/mingl/code/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/final_model.th'))
     agents, agent_data_sizes = [], {}
     for _id in range(0, args.num_agents):
         if args.data == 'fedemnist': 
@@ -94,7 +94,7 @@ if __name__ == '__main__':
 
         
     print('Training has finished!')
-    # torch.save(global_model.state_dict(), f'/work/LAS/wzhang-lab/mingl/code/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/final_model.th')
+    torch.save(global_model.state_dict(), f'/work/LAS/wzhang-lab/mingl/code/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/final_model_cifar.th')
     rnd = 1
     with torch.no_grad():
         val_loss, (val_acc, val_per_class_acc) = utils.get_loss_n_accuracy(global_model, criterion, val_loader, args)
