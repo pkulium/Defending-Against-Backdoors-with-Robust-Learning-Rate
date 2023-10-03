@@ -103,7 +103,11 @@ class Agent():
     
     def train_mask(self, global_model, criterion):
         initial_global_model_params = parameters_to_vector(global_model.parameters()).detach()
-        self.local_model = replace_bn_with_noisy_bn(global_model)
+        from copy import deepcopy   
+
+        self.local_model = deepcopy(global_model)
+        self.local_model = replace_bn_with_noisy_bn(self.local_model)
+        self.local_model.train()
         self.local_model = self.local_model.to(self.args.device)
         self.local_model.mask_lr = 0.2
         self.local_model.anp_eps = 0.4
@@ -126,3 +130,7 @@ class Agent():
         mask_values = sorted(mask_values, key=lambda x: float(x[2]))
         print(f'mask_values:{mask_values[0]} - {mask_values[10]}')
         prune_by_threshold(self.local_model, mask_values, pruning_max=0.5, pruning_step=0.05)
+
+        with torch.no_grad():
+            update = parameters_to_vector(self.local_model.parameters()).double() - initial_global_model_params
+            return update
