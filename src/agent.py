@@ -131,6 +131,4 @@ class Agent():
         print(f'mask_values:{mask_values[0]} - {mask_values[10]}')
         prune_by_threshold(global_model, mask_values, pruning_max=0.95, pruning_step=0.01)
 
-        with torch.no_grad():
-            update = parameters_to_vector(global_model.parameters()).double() - initial_global_model_params
-            return update
+        return global_model

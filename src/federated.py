@@ -117,30 +117,30 @@ if __name__ == '__main__':
         agent_updates_dict = {}
         select = [args.num_agents - 1]
         for agent_id in select:
-            update = agents[agent_id].train_mask(global_model, criterion)
-            agent_updates_dict[agent_id] = update
-            # make sure every agent gets same copy of the global model in a round (i.e., they don't affect each other's training)
-            vector_to_parameters(copy.deepcopy(rnd_global_params), global_model.parameters())
-        # aggregate params obtained by agents and update the global params
-        aggregator.aggregate_updates(global_model, agent_updates_dict, rnd)
+            global_model = agents[agent_id].train_mask(global_model, criterion)
+        #     agent_updates_dict[agent_id] = update
+        #     # make sure every agent gets same copy of the global model in a round (i.e., they don't affect each other's training)
+        #     vector_to_parameters(copy.deepcopy(rnd_global_params), global_model.parameters())
+        # # aggregate params obtained by agents and update the global params
+        # aggregator.aggregate_updates(global_model, agent_updates_dict, rnd)
         
         
         # inference in every args.snap rounds
 
-        with torch.no_grad():
-            val_loss, (val_acc, val_per_class_acc) = utils.get_loss_n_accuracy(global_model, criterion, val_loader, args)
-            writer.add_scalar('Validation/Loss', val_loss, rnd)
-            writer.add_scalar('Validation/Accuracy', val_acc, rnd)
-            print(f'| Val_Loss/Val_Acc: {val_loss:.3f} / {val_acc:.3f} |')
-            print(f'| Val_Per_Class_Acc: {val_per_class_acc} ')
-        
-            poison_loss, (poison_acc, _) = utils.get_loss_n_accuracy(global_model, criterion, poisoned_val_loader, args)
-            cum_poison_acc_mean += poison_acc
-            writer.add_scalar('Poison/Base_Class_Accuracy', val_per_class_acc[args.base_class], rnd)
-            writer.add_scalar('Poison/Poison_Accuracy', poison_acc, rnd)
-            writer.add_scalar('Poison/Poison_Loss', poison_loss, rnd)
-            writer.add_scalar('Poison/Cumulative_Poison_Accuracy_Mean', cum_poison_acc_mean/rnd, rnd) 
-            print(f'| Poison Loss/Poison Acc: {poison_loss:.3f} / {poison_acc:.3f} |')
+            with torch.no_grad():
+                val_loss, (val_acc, val_per_class_acc) = utils.get_loss_n_accuracy(global_model, criterion, val_loader, args)
+                writer.add_scalar('Validation/Loss', val_loss, rnd)
+                writer.add_scalar('Validation/Accuracy', val_acc, rnd)
+                print(f'| Val_Loss/Val_Acc: {val_loss:.3f} / {val_acc:.3f} |')
+                print(f'| Val_Per_Class_Acc: {val_per_class_acc} ')
+            
+                poison_loss, (poison_acc, _) = utils.get_loss_n_accuracy(global_model, criterion, poisoned_val_loader, args)
+                cum_poison_acc_mean += poison_acc
+                writer.add_scalar('Poison/Base_Class_Accuracy', val_per_class_acc[args.base_class], rnd)
+                writer.add_scalar('Poison/Poison_Accuracy', poison_acc, rnd)
+                writer.add_scalar('Poison/Poison_Loss', poison_loss, rnd)
+                writer.add_scalar('Poison/Cumulative_Poison_Accuracy_Mean', cum_poison_acc_mean/rnd, rnd) 
+                print(f'| Poison Loss/Poison Acc: {poison_loss:.3f} / {poison_acc:.3f} |')
 
 
 
