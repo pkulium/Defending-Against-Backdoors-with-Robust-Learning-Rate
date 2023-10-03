@@ -170,7 +170,7 @@ def reset(model, rand_init):
 
 
 def mask_train(model, criterion, mask_opt, noise_opt, data_loader):
-    is_malicious = model.is_malicious
+    # is_malicious = model.is_malicious
     model = model.local_model
     model.train()
     total_correct = 0
@@ -207,10 +207,8 @@ def mask_train(model, criterion, mask_opt, noise_opt, data_loader):
         exclude_noise(model)
         output_clean = model(images)
         loss_nat = criterion(output_clean, labels)
-        if not is_malicious:
-            loss = model.anp_alpha * loss_nat + (1 - model.anp_alpha) * loss_rob
-        else:
-            loss = model.anp_alpha * loss_nat - (1 - model.anp_alpha) * loss_rob
+
+        loss = model.anp_alpha * loss_nat + (1 - model.anp_alpha) * loss_rob
 
         pred = output_clean.data.max(1)[1]
         total_correct += pred.eq(labels.view_as(pred)).sum()
