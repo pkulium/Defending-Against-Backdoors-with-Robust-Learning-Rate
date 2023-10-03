@@ -132,5 +132,5 @@ class Agent():
         prune_by_threshold(global_model, mask_values, pruning_max=0.5, pruning_step=0.05)
 
         with torch.no_grad():
-            update = parameters_to_vector(self.local_model.parameters()).double() - initial_global_model_params
+            update = parameters_to_vector(global_model.parameters()).double() - initial_global_model_params
             return update
