@@ -95,7 +95,22 @@ if __name__ == '__main__':
         
     print('Training has finished!')
     # torch.save(global_model.state_dict(), f'/work/LAS/wzhang-lab/mingl/code/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/final_model.th')
-     # training loop
+    with torch.no_grad():
+        val_loss, (val_acc, val_per_class_acc) = utils.get_loss_n_accuracy(global_model, criterion, val_loader, args)
+        writer.add_scalar('Validation/Loss', val_loss, rnd)
+        writer.add_scalar('Validation/Accuracy', val_acc, rnd)
+        print(f'| Val_Loss/Val_Acc: {val_loss:.3f} / {val_acc:.3f} |')
+        print(f'| Val_Per_Class_Acc: {val_per_class_acc} ')
+    
+        poison_loss, (poison_acc, _) = utils.get_loss_n_accuracy(global_model, criterion, poisoned_val_loader, args)
+        cum_poison_acc_mean += poison_acc
+        writer.add_scalar('Poison/Base_Class_Accuracy', val_per_class_acc[args.base_class], rnd)
+        writer.add_scalar('Poison/Poison_Accuracy', poison_acc, rnd)
+        writer.add_scalar('Poison/Poison_Loss', poison_loss, rnd)
+        writer.add_scalar('Poison/Cumulative_Poison_Accuracy_Mean', cum_poison_acc_mean/rnd, rnd) 
+        print(f'| Poison Loss/Poison Acc: {poison_loss:.3f} / {poison_acc:.3f} |')
+
+        
     for rnd in tqdm(range(1, 2)):
         rnd_global_params = parameters_to_vector(global_model.parameters()).detach()
         agent_updates_dict = {}
