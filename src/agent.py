@@ -104,7 +104,7 @@ class Agent():
     def train_mask(self, global_model, criterion):
         initial_global_model_params = parameters_to_vector(global_model.parameters()).detach()
         self.local_model = replace_bn_with_noisy_bn(global_model)
-        self.local_model = self.local_model.to(self.device)
+        self.local_model = self.local_model.to(self.args.device)
         self.local_model.mask_lr = 0.2
         self.local_model.anp_eps = 0.4
         self.local_model.anp_steps = 1
