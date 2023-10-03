@@ -164,7 +164,7 @@ def prune_by_threshold(model, mask_values, pruning_max, pruning_step):
     #             start += 1
     #         else:
     #             break
-    threshold = 0.5
+    threshold = 0.8
     for idx in range(len(mask_values)):
         if float(mask_values[idx][2]) <= threshold:
             pruning(model, mask_values[idx])
