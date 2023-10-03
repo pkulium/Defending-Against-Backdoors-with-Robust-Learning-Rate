@@ -5,7 +5,45 @@ from torch.nn.utils import parameters_to_vector, vector_to_parameters
 from torch.utils.data import DataLoader
 import torch.nn as nn
 
+from anp_batchnorm import NoisyBatchNorm2d, NoisyBatchNorm1d
+from collections import OrderedDict
+from optimize_mask_cifar import *
+from prune_neuron_cifar import *
 
+def replace_bn_with_noisy_bn(module: nn.Module) -> nn.Module:
+    """Recursively replace all BatchNorm layers with NoisyBatchNorm layers while preserving weights."""
+    for name, child in module.named_children():
+        if isinstance(child, nn.BatchNorm2d):
+            # Create a new NoisyBatchNorm2d layer
+            new_layer = NoisyBatchNorm2d(child.num_features)
+            
+            # Copy weights and biases
+            new_layer.weight.data = child.weight.data.clone().detach()
+            new_layer.bias.data = child.bias.data.clone().detach()
+            
+            # Copy running mean and variance
+            new_layer.running_mean = child.running_mean.clone().detach()
+            new_layer.running_var = child.running_var.clone().detach()
+            
+            # Replace the original layer with the new layer
+            setattr(module, name, new_layer)
+        elif isinstance(child, nn.BatchNorm1d):
+            # Create a new NoisyBatchNorm1d layer
+            new_layer = NoisyBatchNorm1d(child.num_features)
+            
+            # Copy weights and biases
+            new_layer.weight.data = child.weight.data.clone().detach()
+            new_layer.bias.data = child.bias.data.clone().detach()
+            
+            # Copy running mean and variance
+            new_layer.running_mean = child.running_mean.clone().detach()
+            new_layer.running_var = child.running_var.clone().detach()
+            
+            # Replace the original layer with the new layer
+            setattr(module, name, new_layer)
+        else:
+            replace_bn_with_noisy_bn(child)
+    return module
 
 class Agent():
     def __init__(self, id, args, train_dataset=None, data_idxs=None):
@@ -62,4 +100,29 @@ class Agent():
         with torch.no_grad():
             update = parameters_to_vector(global_model.parameters()).double() - initial_global_model_params
             return update
-            
+    
+    def train_mask(self, global_model, criterion):
+        initial_global_model_params = parameters_to_vector(global_model.parameters()).detach()
+        self.local_model = replace_bn_with_noisy_bn(global_model)
+        self.local_model = self.local_model.to(self.device)
+        self.local_model.mask_lr = 0.2
+        self.local_model.anp_eps = 0.4
+        self.local_model.anp_steps = 1
+        self.local_model.anp_alpha = 0.2
+        self.mask_scores = None
+
+        self.local_model.train()  
+        parameters = list(self.local_model.named_parameters())
+        mask_params = [v for n, v in parameters if "neuron_mask" in n]
+        mask_optimizer = torch.optim.SGD(mask_params, lr=self.local_model.mask_lr, momentum=0.9)
+        noise_params = [v for n, v in parameters if "neuron_noise" in n]
+        noise_optimizer = torch.optim.SGD(noise_params, lr=self.local_model.anp_eps / self.local_model.anp_steps)
+        for epoch in range(5):
+            train_loss, train_acc = mask_train(model=self, criterion=criterion, data_loader=self.train_loader,
+                                        mask_opt=mask_optimizer, noise_opt=noise_optimizer)
+        self.mask_scores = get_mask_scores(self.local_model.state_dict())
+        save_mask_scores(self.local_model.state_dict(), f'save/mask_values_{self.client_id}.txt')
+        mask_values = read_data(f'../save/mask_values_{self.client_id}.txt')
+        mask_values = sorted(mask_values, key=lambda x: float(x[2]))
+        print(f'mask_values:{mask_values[0]} - {mask_values[10]}')
+        prune_by_threshold(self.local_model, mask_values, pruning_max=0.5, pruning_step=0.05)
