@@ -95,7 +95,7 @@ if __name__ == '__main__':
     print('Training has finished!')
     torch.save(global_model.state_dict(), f'/work/LAS/wzhang-lab/mingl/code/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/final_model.th')
      # training loop
-    for rnd in tqdm(range(1)):
+    for rnd in tqdm(range(1, 2)):
         rnd_global_params = parameters_to_vector(global_model.parameters()).detach()
         agent_updates_dict = {}
         select = [args.num_agents - 1]
