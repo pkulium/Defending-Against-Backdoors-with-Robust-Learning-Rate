@@ -129,7 +129,7 @@ class Agent():
         mask_values = read_data(f'/work/LAS/wzhang-lab/mingl/code/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/mask_values.txt')
         mask_values = sorted(mask_values, key=lambda x: float(x[2]))
         print(f'mask_values:{mask_values[0]} - {mask_values[10]}')
-        prune_by_threshold(global_model, mask_values, pruning_max=0.5, pruning_step=0.01)
+        prune_by_threshold(global_model, mask_values, pruning_max=0.95, pruning_step=0.01)
 
         with torch.no_grad():
             update = parameters_to_vector(global_model.parameters()).double() - initial_global_model_params
