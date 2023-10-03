@@ -95,7 +95,7 @@ if __name__ == '__main__':
         
     print('Training has finished!')
     # torch.save(global_model.state_dict(), f'/work/LAS/wzhang-lab/mingl/code/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/final_model.th')
-    rnd = 0
+    rnd = 1
     with torch.no_grad():
         val_loss, (val_acc, val_per_class_acc) = utils.get_loss_n_accuracy(global_model, criterion, val_loader, args)
         writer.add_scalar('Validation/Loss', val_loss, rnd)
