@@ -104,6 +104,7 @@ class Agent():
     def train_mask(self, global_model, criterion):
         initial_global_model_params = parameters_to_vector(global_model.parameters()).detach()
         from copy import deepcopy   
+        return global_model
         self.local_model = deepcopy(global_model)
         self.local_model = replace_bn_with_noisy_bn(self.local_model)
         self.local_model.train()

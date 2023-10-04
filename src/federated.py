@@ -112,7 +112,7 @@ if __name__ == '__main__':
         print(f'| Poison Loss/Poison Acc: {poison_loss:.3f} / {poison_acc:.3f} |')
 
 
-    for rnd in tqdm(range(1, 2)):
+    for rnd in range(1, 2):
         rnd_global_params = parameters_to_vector(global_model.parameters()).detach()
         agent_updates_dict = {}
         select = [args.num_agents - 1]
