@@ -120,10 +120,10 @@ class Agent():
         mask_optimizer = torch.optim.SGD(mask_params, lr=self.local_model.mask_lr, momentum=0.9)
         noise_params = [v for n, v in parameters if "neuron_noise" in n]
         noise_optimizer = torch.optim.SGD(noise_params, lr=self.local_model.anp_eps / self.local_model.anp_steps)
-        for epoch in range(20):
+        for epoch in range(10):
             train_loss, train_acc = mask_train(model=self, criterion=criterion, data_loader=self.train_loader,
                                         mask_opt=mask_optimizer, noise_opt=noise_optimizer)
-        return self.local_model
+        # return self.local_model
         self.mask_scores = get_mask_scores(self.local_model.state_dict())
         save_mask_scores(self.local_model.state_dict(), f'/work/LAS/wzhang-lab/mingl/code/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/mask_values.txt')
         mask_values = read_data(f'/work/LAS/wzhang-lab/mingl/code/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/mask_values.txt')
