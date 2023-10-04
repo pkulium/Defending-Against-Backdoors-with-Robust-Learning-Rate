@@ -102,6 +102,7 @@ class Agent():
             return update
     
     def train_mask(self, global_model, criterion):
+        print(f'id:{self.id}')
         initial_global_model_params = parameters_to_vector(global_model.parameters()).detach()
         from copy import deepcopy   
         self.local_model = deepcopy(global_model)
