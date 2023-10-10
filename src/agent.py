@@ -132,4 +132,4 @@ class Agent():
         print(f'mask_values:{mask_values[0]} - {mask_values[10]}')
         prune_by_threshold(global_model, mask_values, pruning_max=0.75, pruning_step=0.01)
 
-        return global_model
+        return self.local_model
