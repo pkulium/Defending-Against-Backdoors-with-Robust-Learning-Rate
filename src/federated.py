@@ -127,7 +127,8 @@ if __name__ == '__main__':
         # aggregate params obtained by agents and update the global params
         mask_values = aggregator.aggregate_mask(agent_updates_mask)
         prune_by_threshold(global_model, mask_values, pruning_max=0.9, pruning_step=0.01)
-
+        print(f'mask_values:{mask_values[0]} - {mask_values[10]}')
+        
         with torch.no_grad():
             val_loss, (val_acc, val_per_class_acc) = utils.get_loss_n_accuracy(global_model, criterion, val_loader, args)
             writer.add_scalar('Validation/Loss', val_loss, rnd)
