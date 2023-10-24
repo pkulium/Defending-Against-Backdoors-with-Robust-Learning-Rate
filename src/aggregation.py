@@ -4,6 +4,7 @@ from torch.nn.utils import vector_to_parameters, parameters_to_vector
 import numpy as np
 from copy import deepcopy
 from torch.nn import functional as F
+from collections import defaultdict
 
 class Aggregation():
     def __init__(self, agent_data_sizes, n_params, poisoned_val_loader, args, writer):
@@ -44,7 +45,6 @@ class Aggregation():
         # self.plot_norms(agent_updates_dict, cur_round)
         return           
         
-    from collections import defaultdict
     def aggregate_mask(self, data):
         # Dictionary to store sums
         sums = defaultdict(float)
