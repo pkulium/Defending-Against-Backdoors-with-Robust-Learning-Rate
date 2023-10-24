@@ -107,7 +107,7 @@ class Agent():
         initial_global_model_params = parameters_to_vector(global_model.parameters()).detach()
         from copy import deepcopy   
         self.local_model = deepcopy(global_model)
-        self.local_model = replace_bn_with_noisy_bn(self.local_model)
+        # self.local_model = replace_bn_with_noisy_bn(self.local_model)
         self.local_model.train()
         self.local_model = self.local_model.to(self.args.device)
         self.local_model.mask_lr = 0.1
