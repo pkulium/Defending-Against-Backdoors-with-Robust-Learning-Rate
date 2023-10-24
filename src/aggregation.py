@@ -82,7 +82,7 @@ class Aggregation():
 
     from collections import defaultdict
 
-    def merge_and_median(data):
+    def aggregate_mask_median(self, data):
         # Dictionary to store lists of values for each tuple key
         values = defaultdict(list)
 
