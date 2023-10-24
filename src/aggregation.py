@@ -43,7 +43,23 @@ class Aggregation():
         # self.plot_sign_agreement(lr_vector, cur_global_params, new_global_params, cur_round)
         # self.plot_norms(agent_updates_dict, cur_round)
         return           
-     
+        
+    from collections import defaultdict
+    def aggregate_mask(data):
+        # Dictionary to store sums
+        sums = defaultdict(float)
+
+        # Iterate through each list in the dictionary
+        for key, value in data.items():
+            for item in value:
+                # Use the first two values of the tuple as the key
+                key = (item[0], item[1])
+                sums[key] += item[2]
+
+        # Convert sums dictionary to the desired list format
+        result = [(key[0], key[1], val) for key, val in sums.items()]
+
+        return result
     
     def compute_robustLR(self, agent_updates_dict):
         agent_updates_sign = [torch.sign(update) for update in agent_updates_dict.values()]  
