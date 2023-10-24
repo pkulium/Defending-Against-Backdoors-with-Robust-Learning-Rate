@@ -109,7 +109,7 @@ class Agent():
         self.local_model = replace_bn_with_noisy_bn(self.local_model)
         self.local_model.train()
         self.local_model = self.local_model.to(self.args.device)
-        self.local_model.mask_lr = 0.01
+        self.local_model.mask_lr = 0.2
         self.local_model.anp_eps = 0.4
         self.local_model.anp_steps = 1
         self.local_model.anp_alpha = 0.2
@@ -121,7 +121,7 @@ class Agent():
         mask_optimizer = torch.optim.SGD(mask_params, lr=self.local_model.mask_lr, momentum=0.9)
         noise_params = [v for n, v in parameters if "neuron_noise" in n]
         noise_optimizer = torch.optim.SGD(noise_params, lr=self.local_model.anp_eps / self.local_model.anp_steps)
-        for epoch in range(5):
+        for epoch in range(50):
             train_loss, train_acc = mask_train(model=self, criterion=criterion, data_loader=self.train_loader,
                                         mask_opt=mask_optimizer, noise_opt=noise_optimizer)
         # return self.local_model
