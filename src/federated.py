@@ -117,7 +117,7 @@ if __name__ == '__main__':
     for rnd in range(1, 2):
         rnd_global_params = parameters_to_vector(global_model.parameters()).detach()
         agent_updates_dict = {}
-        select = [args.num_agents - 3]
+        select = [args.num_agents - args.num_agents]
         for agent_id in select:
             global_model = agents[agent_id].train_mask(global_model, criterion)
             # agent_updates_dict[agent_id] = update
