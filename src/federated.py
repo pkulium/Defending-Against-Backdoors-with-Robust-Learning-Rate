@@ -46,7 +46,7 @@ if __name__ == '__main__':
     
     # initialize a model, and the agents
     global_model = models.get_model(args.data).to(args.device)
-    if args.round == 0:
+    if args.rounds == 0:
         global_model.load_state_dict(torch.load('/work/LAS/wzhang-lab/mingl/code/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/final_model_cifar.th'))
     agents, agent_data_sizes = [], {}
     for _id in range(0, args.num_agents):
@@ -95,7 +95,7 @@ if __name__ == '__main__':
 
         
     print('Training has finished!')
-    if args.round != 0:
+    if args.rounds != 0:
         torch.save(global_model.state_dict(), f'/work/LAS/wzhang-lab/mingl/code/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/final_model_cifar.th')
     rnd = 1
     with torch.no_grad():
