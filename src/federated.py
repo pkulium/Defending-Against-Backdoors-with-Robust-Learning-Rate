@@ -49,7 +49,7 @@ if __name__ == '__main__':
     global_model = models.get_model(args.data).to(args.device)
     if args.rounds == 0:
         global_model.load_state_dict(torch.load('/work/LAS/wzhang-lab/mingl/code/backdoor/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/final_model_cifar.th'))
-        global_model = replace_bn_with_noisy_bn(global_model)
+        # global_model = replace_bn_with_noisy_bn(global_model)
     agents, agent_data_sizes = [], {}
     for _id in range(0, args.num_agents):
         if args.data == 'fedemnist': 
