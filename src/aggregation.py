@@ -79,6 +79,37 @@ class Aggregation():
         result = [(key[0], key[1], val) for key, val in minimums.items()]
 
         return result
+
+    from collections import defaultdict
+
+    def merge_and_median(data):
+        # Dictionary to store lists of values for each tuple key
+        values = defaultdict(list)
+
+        # Iterate through each list in the dictionary
+        for key, value in data.items():
+            for item in value:
+                # Use the first two values of the tuple as the key
+                tuple_key = (item[0], item[1])
+                values[tuple_key].append(item[2])
+
+        # Compute the median for each tuple key
+        medians = {}
+        for key, vals in values.items():
+            sorted_vals = sorted(vals)
+            n = len(sorted_vals)
+            # If odd number of values
+            if n % 2 == 1:
+                medians[key] = sorted_vals[n // 2]
+            # If even number of values
+            else:
+                medians[key] = (sorted_vals[n // 2 - 1] + sorted_vals[n // 2]) / 2
+
+        # Convert medians dictionary to the desired list format
+        result = [(key[0], key[1], val) for key, val in medians.items()]
+
+        return result
+
     
     def compute_robustLR(self, agent_updates_dict):
         agent_updates_sign = [torch.sign(update) for update in agent_updates_dict.values()]  
