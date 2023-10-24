@@ -15,7 +15,7 @@ def replace_bn_with_noisy_bn(module: nn.Module) -> nn.Module:
     for name, child in module.named_children():
         if isinstance(child, nn.BatchNorm2d):
             # Create a new NoisyBatchNorm2d layer
-            new_layer = NoisyBatchNorm2d(child.num_features)
+            new_layer = NoisyBatchNorm2d(child.num_features).to(device=module.device)
             
             # Copy weights and biases
             new_layer.weight.data = child.weight.data.clone().detach()
@@ -29,7 +29,7 @@ def replace_bn_with_noisy_bn(module: nn.Module) -> nn.Module:
             setattr(module, name, new_layer)
         elif isinstance(child, nn.BatchNorm1d):
             # Create a new NoisyBatchNorm1d layer
-            new_layer = NoisyBatchNorm1d(child.num_features)
+            new_layer = NoisyBatchNorm1d(child.num_features).to(device=module.device)
             
             # Copy weights and biases
             new_layer.weight.data = child.weight.data.clone().detach()
