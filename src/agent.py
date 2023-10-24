@@ -106,7 +106,7 @@ class Agent():
         initial_global_model_params = parameters_to_vector(global_model.parameters()).detach()
         from copy import deepcopy   
         self.local_model = deepcopy(global_model)
-        self.local_model = replace_bn_with_noisy_bn(self.local_model)
+        # self.local_model = replace_bn_with_noisy_bn(self.local_model)
         self.local_model.train()
         self.local_model = self.local_model.to(self.args.device)
         self.local_model.mask_lr = 0.1
@@ -124,12 +124,15 @@ class Agent():
         for epoch in range(5):
             train_loss, train_acc = mask_train(model=self, criterion=criterion, data_loader=self.train_loader,
                                         mask_opt=mask_optimizer, noise_opt=noise_optimizer)
-        # return self.local_model
+
         # self.mask_scores = get_mask_scores(self.local_model.state_dict())
         # save_mask_scores(self.local_model.state_dict(), f'/work/LAS/wzhang-lab/mingl/code/backdoor/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/mask_values.txt')
         # mask_values = read_data(f'/work/LAS/wzhang-lab/mingl/code/backdoor/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/mask_values.txt')
         # mask_values = sorted(mask_values, key=lambda x: float(x[2]))
         # print(f'mask_values:{mask_values[0]} - {mask_values[10]}')
         # prune_by_threshold(global_model, mask_values, pruning_max=0.75, pruning_step=0.01)
+        # return self.local_model
 
-        return self.local_model
+        with torch.no_grad():
+            update = parameters_to_vector(global_model.parameters()).double() - initial_global_model_params
+            return update
