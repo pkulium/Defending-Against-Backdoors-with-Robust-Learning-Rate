@@ -48,7 +48,7 @@ class Aggregation():
     def aggregate_mask(self, data):
         # Dictionary to store sums
         sums = defaultdict(float)
-
+        n = len(data)
         # Iterate through each list in the dictionary
         for key, value in data.items():
             for item in value:
@@ -57,7 +57,7 @@ class Aggregation():
                 sums[key] += item[2]
 
         # Convert sums dictionary to the desired list format
-        result = [(key[0], key[1], val) for key, val in sums.items()]
+        result = [(key[0], key[1], val / n) for key, val in sums.items()]
 
         return result
     
