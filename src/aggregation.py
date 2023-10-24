@@ -45,7 +45,7 @@ class Aggregation():
         return           
         
     from collections import defaultdict
-    def aggregate_mask(data):
+    def aggregate_mask(self, data):
         # Dictionary to store sums
         sums = defaultdict(float)
 
