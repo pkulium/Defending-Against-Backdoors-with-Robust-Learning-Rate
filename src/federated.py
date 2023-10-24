@@ -120,14 +120,14 @@ if __name__ == '__main__':
         select = [args.num_agents - 1]
         for agent_id in select:
             global_model = agents[agent_id].train_mask(global_model, criterion)
-            agent_updates_dict[agent_id] = update
-            # make sure every agent gets same copy of the global model in a round (i.e., they don't affect each other's training)
-            vector_to_parameters(copy.deepcopy(rnd_global_params), global_model.parameters())
-            # aggregate params obtained by agents and update the global params
-            aggregator.aggregate_updates(global_model, agent_updates_dict, rnd)
+            # agent_updates_dict[agent_id] = update
+            # # make sure every agent gets same copy of the global model in a round (i.e., they don't affect each other's training)
+            # vector_to_parameters(copy.deepcopy(rnd_global_params), global_model.parameters())
+            # # aggregate params obtained by agents and update the global params
+            # aggregator.aggregate_updates(global_model, agent_updates_dict, rnd)
         
         
-        # inference in every args.snap rounds
+            # inference in every args.snap rounds
 
             with torch.no_grad():
                 val_loss, (val_acc, val_per_class_acc) = utils.get_loss_n_accuracy(global_model, criterion, val_loader, args)
