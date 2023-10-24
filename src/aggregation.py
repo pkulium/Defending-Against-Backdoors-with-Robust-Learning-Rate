@@ -45,7 +45,7 @@ class Aggregation():
         # self.plot_norms(agent_updates_dict, cur_round)
         return           
         
-    def aggregate_mask(self, data):
+    def aggregate_mask_avg(self, data):
         # Dictionary to store sums
         sums = defaultdict(float)
         n = len(data)
@@ -58,6 +58,25 @@ class Aggregation():
 
         # Convert sums dictionary to the desired list format
         result = [(key[0], key[1], val / n) for key, val in sums.items()]
+
+        return result
+    
+    def aggregate_mask_min(self, data):
+        # Dictionary to store minimum values
+        minimums = {}
+
+        # Iterate through each list in the dictionary
+        for key, value in data.items():
+            for item in value:
+                # Use the first two values of the tuple as the key
+                tuple_key = (item[0], item[1])
+                if tuple_key in minimums:
+                    minimums[tuple_key] = min(minimums[tuple_key], item[2])
+                else:
+                    minimums[tuple_key] = item[2]
+
+        # Convert minimums dictionary to the desired list format
+        result = [(key[0], key[1], val) for key, val in minimums.items()]
 
         return result
     
