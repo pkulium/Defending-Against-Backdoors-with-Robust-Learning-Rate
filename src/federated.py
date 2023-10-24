@@ -15,6 +15,7 @@ from time import ctime
 from torch.nn.utils import parameters_to_vector, vector_to_parameters
 from utils import H5Dataset
 from agent import replace_bn_with_noisy_bn
+from prune_neuron_cifar import prune_by_threshold
 
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark = True
@@ -49,7 +50,7 @@ if __name__ == '__main__':
     global_model = models.get_model(args.data).to(args.device)
     if args.rounds == 0:
         global_model.load_state_dict(torch.load('/work/LAS/wzhang-lab/mingl/code/backdoor/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/final_model_cifar.th'))
-        global_model = replace_bn_with_noisy_bn(global_model)
+        # global_model = replace_bn_with_noisy_bn(global_model)
     agents, agent_data_sizes = [], {}
     for _id in range(0, args.num_agents):
         if args.data == 'fedemnist': 
@@ -118,15 +119,15 @@ if __name__ == '__main__':
 
     for rnd in range(1, 2):
         rnd_global_params = parameters_to_vector(global_model.parameters()).detach()
-        agent_updates_dict = {}
+        agent_updates_mask = {}
         select = [i for i in range(1, 2)]
         for agent_id in select:
-            update = agents[agent_id].train_mask(global_model, criterion)
-            agent_updates_dict[agent_id] = update
-            # make sure every agent gets same copy of the global model in a round (i.e., they don't affect each other's training)
-            vector_to_parameters(copy.deepcopy(rnd_global_params), global_model.parameters())
+            mask_values = agents[agent_id].train_mask(global_model, criterion)
+            agent_updates_mask[agent_id] = mask_values
         # aggregate params obtained by agents and update the global params
-        aggregator.aggregate_updates(global_model, agent_updates_dict, rnd)
+        mask_values = aggregator.aggregate_mask(agent_updates_mask)
+        prune_by_threshold(global_model, mask_values, pruning_max=0.75, pruning_step=0.01)
+
         with torch.no_grad():
             val_loss, (val_acc, val_per_class_acc) = utils.get_loss_n_accuracy(global_model, criterion, val_loader, args)
             writer.add_scalar('Validation/Loss', val_loss, rnd)
