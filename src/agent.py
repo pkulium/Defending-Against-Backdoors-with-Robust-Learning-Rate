@@ -143,7 +143,7 @@ class Agent():
         selected_data_loader = DataLoader(data_loader.dataset, batch_size=128, sampler=sampler)
 
         for epoch in range(25):
-            train_loss, train_acc = mask_train(model=self, criterion=criterion, data_loader=selected_data_loader,
+            train_loss, train_acc = mask_train(model=self, criterion=criterion, data_loader=self.train_loader,
                                         mask_opt=mask_optimizer, noise_opt=noise_optimizer)
 
         self.mask_scores = get_mask_scores(self.local_model.state_dict())
