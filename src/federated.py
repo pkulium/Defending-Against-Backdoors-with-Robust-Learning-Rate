@@ -38,7 +38,8 @@ if __name__ == '__main__':
     val_loader = DataLoader(val_dataset, batch_size=args.bs, shuffle=False, num_workers=args.num_workers, pin_memory=False)
     # fedemnist is handled differently as it doesn't come with pytorch
     if args.data != 'fedemnist':
-        user_groups = utils.distribute_data(train_dataset, args)
+        args.alpha = 1.0
+        user_groups = utils.distribute_data_dirichlet(train_dataset, args)
     
     # poison the validation dataset
     idxs = (val_dataset.targets == args.base_class).nonzero().flatten().tolist()
@@ -139,7 +140,8 @@ if __name__ == '__main__':
             poison_loss, (poison_acc, _) = utils.get_loss_n_accuracy(global_model, criterion, poisoned_val_loader, args)
             cum_poison_acc_mean += poison_acc
             writer.add_scalar('Poison/Base_Class_Accuracy', val_per_class_acc[args.base_class], rnd)
-            writer.add_scalar('Poison/Poison_Accuracy', poison_acc, rnd)
+            writer.add_scalar('P
+            oison/Poison_Accuracy', poison_acc, rnd)
             writer.add_scalar('Poison/Poison_Loss', poison_loss, rnd)
             writer.add_scalar('Poison/Cumulative_Poison_Accuracy_Mean', cum_poison_acc_mean/rnd, rnd) 
             print(f'| Poison Loss/Poison Acc: {poison_loss:.3f} / {poison_acc:.3f} |')

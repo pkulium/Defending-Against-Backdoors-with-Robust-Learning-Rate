@@ -53,7 +53,48 @@ class DatasetSplit(Dataset):
         inp, target = self.dataset[self.idxs[item]]
         return inp, target
 
+def distribute_data_dirichlet(dataset, args):
+    # sort labels
+    labels_sorted = dataset.targets.sort()
+    # create a list of pairs (index, label), i.e., at index we have an instance of  label
+    class_by_labels = list(zip(labels_sorted.values.tolist(), labels_sorted.indices.tolist()))
+    labels_dict = defaultdict(list)
 
+    for k, v in class_by_labels:
+        labels_dict[k].append(v)
+    # convert list to a dictionary, e.g., at labels_dict[0], we have indexes for class 0
+    N = len(labels_sorted[1])
+    K = len(labels_dict)
+    client_num = args.num_agents
+
+    min_size = 0
+    while min_size < 10:
+        idx_batch = [[] for _ in range(client_num)]
+        for k in labels_dict:
+            idx_k = labels_dict[k]
+
+            # get a list of batch indexes which are belong to label k
+            np.random.shuffle(idx_k)
+            # using dirichlet distribution to determine the unbalanced proportion for each client (client_num in total)
+            # e.g., when client_num = 4, proportions = [0.29543505 0.38414498 0.31998781 0.00043216], sum(proportions) = 1
+            proportions = np.random.dirichlet(np.repeat(args.alpha, client_num))
+
+            # get the index in idx_k according to the dirichlet distribution
+            proportions = np.array([p * (len(idx_j) < N / client_num) for p, idx_j in zip(proportions, idx_batch)])
+            proportions = proportions / proportions.sum()
+            proportions = (np.cumsum(proportions) * len(idx_k)).astype(int)[:-1]
+
+            # generate the batch list for each client
+            idx_batch = [idx_j + idx.tolist() for idx_j, idx in zip(idx_batch, np.split(idx_k, proportions))]
+            min_size = min([len(idx_j) for idx_j in idx_batch])
+
+    # distribute data to users
+    dict_users = defaultdict(list)
+    for user_idx in range(args.num_agents):
+        dict_users[user_idx] = idx_batch[user_idx]
+        np.random.shuffle(dict_users[user_idx])
+
+    return dict_users
 
 def distribute_data(dataset, args, n_classes=10, class_per_agent=10):
     if args.num_agents == 1:
