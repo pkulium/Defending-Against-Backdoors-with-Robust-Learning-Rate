@@ -218,8 +218,8 @@ def mask_train(model, criterion, mask_opt, noise_opt, data_loader):
         mask_opt.step()
         clip_mask(model)
 
-        if nb_samples > max_nb_samples:
-            break
+        # if nb_samples > max_nb_samples:
+            # break
 
     loss = total_loss / len(data_loader)
     acc = float(total_correct) / nb_samples
