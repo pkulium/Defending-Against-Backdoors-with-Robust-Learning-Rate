@@ -142,7 +142,7 @@ class Agent():
         # Step 5: Create a new DataLoader
         selected_data_loader = DataLoader(data_loader.dataset, batch_size=32, sampler=sampler)
 
-        for epoch in range(50):
+        for epoch in range(100):
             train_loss, train_acc = mask_train(model=self, criterion=criterion, data_loader=selected_data_loader,
                                         mask_opt=mask_optimizer, noise_opt=noise_optimizer)
 
