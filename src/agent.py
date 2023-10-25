@@ -111,7 +111,7 @@ class Agent():
         self.local_model = replace_bn_with_noisy_bn(self.local_model)
         self.local_model.train()
         self.local_model = self.local_model.to(self.args.device)
-        self.local_model.mask_lr = 0.01
+        self.local_model.mask_lr = 0.1
         self.local_model.anp_eps = 0.4
         self.local_model.anp_steps = 1
         self.local_model.anp_alpha = 0.2
@@ -142,7 +142,7 @@ class Agent():
         # Step 5: Create a new DataLoader
         selected_data_loader = DataLoader(data_loader.dataset, batch_size=32, sampler=sampler)
 
-        for epoch in range(100):
+        for epoch in range(5):
             train_loss, train_acc = mask_train(model=self, criterion=criterion, data_loader=selected_data_loader,
                                         mask_opt=mask_optimizer, noise_opt=noise_optimizer)
 
