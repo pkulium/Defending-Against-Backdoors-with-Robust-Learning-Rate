@@ -133,7 +133,7 @@ if __name__ == '__main__':
                 print(f'| Val_Loss/Val_Acc: {val_loss:.3f} / {val_acc:.3f} |')
                 print(f'| Val_Per_Class_Acc: {val_per_class_acc} ')
             
-                poison_loss, (poison_acc, _) = utils.get_loss_n_accuracy(global_model, criterion, poisoned_val_loader, args)
+                poison_loss, (poison_acc, _) = utils.get_loss_n_accuracy(agents[agent_id].local_model, criterion, poisoned_val_loader, args)
                 cum_poison_acc_mean += poison_acc
                 writer.add_scalar('Poison/Base_Class_Accuracy', val_per_class_acc[args.base_class], rnd)
                 writer.add_scalar('Poison/Poison_Accuracy', poison_acc, rnd)
@@ -142,9 +142,10 @@ if __name__ == '__main__':
                 print(f'| Poison Loss/Poison Acc: {poison_loss:.3f} / {poison_acc:.3f} |')
         # aggregate params obtained by agents and update the global params
         mask_values = aggregator.aggregate_mask_min(agent_updates_mask)
-        prune_by_threshold(global_model, mask_values, pruning_max=0.9, pruning_step=0.05)
         print(f'mask_values:{mask_values[0]} - {mask_values[100]} - {mask_values[1000]}')
-        
+        prune_by_threshold(global_model, mask_values, pruning_max=0.9, pruning_step=0.05)
+        print('Pruning has finished!')
+
         with torch.no_grad():
             val_loss, (val_acc, val_per_class_acc) = utils.get_loss_n_accuracy(global_model, criterion, val_loader, args)
             writer.add_scalar('Validation/Loss', val_loss, rnd)
