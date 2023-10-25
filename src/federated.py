@@ -39,8 +39,8 @@ if __name__ == '__main__':
     # fedemnist is handled differently as it doesn't come with pytorch
     if args.data != 'fedemnist':
         args.alpha = 1000
-        user_groups = utils.distribute_data_dirichlet(train_dataset, args)
-        # user_groups = utils.distribute_data(train_dataset, args)
+        # user_groups = utils.distribute_data_dirichlet(train_dataset, args)
+        user_groups = utils.distribute_data(train_dataset, args)
 
     
     # poison the validation dataset
@@ -146,7 +146,7 @@ if __name__ == '__main__':
         # aggregate params obtained by agents and update the global params
         mask_values = aggregator.aggregate_mask_min(agent_updates_mask)
         print(f'mask_values:{mask_values[0]} - {mask_values[100]} - {mask_values[1000]}')
-        prune_by_threshold(global_model, mask_values, pruning_max=0.9, pruning_step=0.05)
+        prune_by_threshold(global_model, mask_values, pruning_max=0.95, pruning_step=0.05)
         print('Pruning has finished!')
 
         with torch.no_grad():
