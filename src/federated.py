@@ -38,7 +38,7 @@ if __name__ == '__main__':
     val_loader = DataLoader(val_dataset, batch_size=args.bs, shuffle=False, num_workers=args.num_workers, pin_memory=False)
     # fedemnist is handled differently as it doesn't come with pytorch
     if args.data != 'fedemnist':
-        args.alpha = 1
+        args.alpha = 10
         user_groups = utils.distribute_data_dirichlet(train_dataset, args)
     
     # poison the validation dataset
