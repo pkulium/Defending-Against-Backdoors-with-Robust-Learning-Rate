@@ -9,6 +9,7 @@ from anp_batchnorm import NoisyBatchNorm2d, NoisyBatchNorm1d
 from collections import OrderedDict
 from optimize_mask_cifar import *
 from prune_neuron_cifar import *
+from torch.utils.data import DataLoader, SubsetRandomSampler
 
 def replace_bn_with_noisy_bn(module: nn.Module) -> nn.Module:
     """Recursively replace all BatchNorm layers with NoisyBatchNorm layers while preserving weights."""
@@ -122,8 +123,26 @@ class Agent():
         mask_optimizer = torch.optim.SGD(mask_params, lr=self.local_model.mask_lr, momentum=0.9)
         noise_params = [v for n, v in parameters if "neuron_noise" in n]
         noise_optimizer = torch.optim.SGD(noise_params, lr=self.local_model.anp_eps / self.local_model.anp_steps)
+
+        # Step 1: Create a list of all indices
+        data_loader=self.train_loader
+        all_indices = list(range(len(data_loader.dataset)))
+
+        # Step 2: Shuffle these indices
+        torch.manual_seed(42)  # For reproducibility
+        torch.utils.data.random_split(all_indices, [len(data_loader.dataset)])  # This will shuffle the indices
+
+        # Step 3: Select the first 500 indices
+        selected_indices = all_indices[:500]
+
+        # Step 4: Use SubsetRandomSampler
+        sampler = SubsetRandomSampler(selected_indices)
+
+        # Step 5: Create a new DataLoader
+        selected_data_loader = DataLoader(data_loader.dataset, batch_size=32, sampler=sampler)
+
         for epoch in range(25):
-            train_loss, train_acc = mask_train(model=self, criterion=criterion, data_loader=self.train_loader,
+            train_loss, train_acc = mask_train(model=self, criterion=criterion, data_loader=selected_data_loader,
                                         mask_opt=mask_optimizer, noise_opt=noise_optimizer)
 
         self.mask_scores = get_mask_scores(self.local_model.state_dict())
