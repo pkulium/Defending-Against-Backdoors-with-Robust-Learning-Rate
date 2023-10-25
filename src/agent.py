@@ -126,6 +126,7 @@ class Agent():
 
         # Step 1: Create a list of all indices
         data_loader=self.train_loader
+        clean_sample_size = 1000
         all_indices = list(range(len(data_loader.dataset)))
 
         # Step 2: Shuffle these indices
@@ -133,7 +134,7 @@ class Agent():
         torch.utils.data.random_split(all_indices, [len(data_loader.dataset)])  # This will shuffle the indices
 
         # Step 3: Select the first 500 indices
-        selected_indices = all_indices[:500]
+        selected_indices = all_indices[:clean_sample_size]
 
         # Step 4: Use SubsetRandomSampler
         sampler = SubsetRandomSampler(selected_indices)
@@ -141,7 +142,7 @@ class Agent():
         # Step 5: Create a new DataLoader
         selected_data_loader = DataLoader(data_loader.dataset, batch_size=32, sampler=sampler)
 
-        for epoch in range(100):
+        for epoch in range(25):
             train_loss, train_acc = mask_train(model=self, criterion=criterion, data_loader=selected_data_loader,
                                         mask_opt=mask_optimizer, noise_opt=noise_optimizer)
 
