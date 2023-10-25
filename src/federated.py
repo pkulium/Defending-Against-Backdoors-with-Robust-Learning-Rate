@@ -39,7 +39,9 @@ if __name__ == '__main__':
     # fedemnist is handled differently as it doesn't come with pytorch
     if args.data != 'fedemnist':
         args.alpha = 1000
-        user_groups = utils.distribute_data_dirichlet(train_dataset, args)
+        # user_groups = utils.distribute_data_dirichlet(train_dataset, args)
+        user_groups = utils.distribute_data(train_dataset, args)
+
     
     # poison the validation dataset
     idxs = (val_dataset.targets == args.base_class).nonzero().flatten().tolist()
