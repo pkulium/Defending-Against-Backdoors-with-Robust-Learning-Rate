@@ -123,8 +123,7 @@ if __name__ == '__main__':
     for rnd in range(1, 2):
         rnd_global_params = parameters_to_vector(global_model.parameters()).detach()
         agent_updates_mask = {}
-        # select = [i for i in range(1, 10)]
-        select = [i for i in range(1, 3)]
+        select = [i for i in range(1, 10)]
         for agent_id in select:
             print('-' * 64)
             mask_values = agents[agent_id].train_mask(global_model, criterion)
