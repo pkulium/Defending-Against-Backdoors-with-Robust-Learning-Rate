@@ -42,7 +42,7 @@ if __name__ == '__main__':
         args.alpha = 1.0
         args.server_alpha = 10000
         user_groups, server_group = utils.distribute_data_dirichlet(train_dataset, args)
-        # user_groups = utils.distribute_data(train_dataset, args)
+        user_groups = utils.distribute_data(train_dataset, args)
         server_data = utils.DatasetSplit(train_dataset, server_group)
         server_train_loader = DataLoader(server_data, batch_size=128, shuffle=True,\
             num_workers=args.num_workers, pin_memory=False)    
@@ -104,10 +104,10 @@ if __name__ == '__main__':
                 writer.add_scalar('Poison/Cumulative_Poison_Accuracy_Mean', cum_poison_acc_mean/rnd, rnd) 
                 print(f'| Poison Loss/Poison Acc: {poison_loss:.3f} / {poison_acc:.3f} |')
 
-        
     print('Training has finished!')
     if args.rounds != 0:
         torch.save(global_model.state_dict(), f'/work/LAS/wzhang-lab/mingl/code/backdoor/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/final_model_cifar.th')
+
     rnd = 1
     with torch.no_grad():
         val_loss, (val_acc, val_per_class_acc) = utils.get_loss_n_accuracy(global_model, criterion, val_loader, args)
