@@ -11,6 +11,57 @@ from optimize_mask_cifar import *
 from prune_neuron_cifar import *
 from torch.utils.data import DataLoader, SubsetRandomSampler
 
+def train_mask(id, global_model, criterion, train_loader):
+        print(f'id:{id}')
+        initial_global_model_params = parameters_to_vector(global_model.parameters()).detach()
+        from copy import deepcopy   
+        local_model = deepcopy(global_model)
+        local_model = replace_bn_with_noisy_bn(local_model)
+        local_model.train()
+        local_model = local_model.to(args.device)
+        local_model.mask_lr = 0.1
+        local_model.anp_eps = 0.4
+        local_model.anp_steps = 1
+        local_model.anp_alpha = 0.2
+        mask_scores = None
+
+        local_model.train()  
+        parameters = list(local_model.named_parameters())
+        mask_params = [v for n, v in parameters if "neuron_mask" in n]
+        mask_optimizer = torch.optim.SGD(mask_params, lr=local_model.mask_lr, momentum=0.9)
+        noise_params = [v for n, v in parameters if "neuron_noise" in n]
+        noise_optimizer = torch.optim.SGD(noise_params, lr=local_model.anp_eps / local_model.anp_steps)
+
+        # Step 1: Create a list of all indices
+        data_loader=train_loader
+        clean_sample_size = 500
+        all_indices = list(range(len(data_loader.dataset)))
+
+        # Step 2: Shuffle these indices
+        torch.manual_seed(42)  # For reproducibility
+        torch.utils.data.random_split(all_indices, [len(data_loader.dataset)])  # This will shuffle the indices
+
+        # Step 3: Select the first 500 indices
+        selected_indices = all_indices[:clean_sample_size]
+
+        # Step 4: Use SubsetRandomSampler
+        sampler = SubsetRandomSampler(selected_indices)
+
+        # Step 5: Create a new DataLoader
+        selected_data_loader = DataLoader(data_loader.dataset, batch_size=128, sampler=sampler)
+
+        for epoch in range(50):
+            train_loss, train_acc = mask_train(model=local_model, criterion=criterion, data_loader=train_loader,
+                                        mask_opt=mask_optimizer, noise_opt=noise_optimizer)
+
+        mask_scores = get_mask_scores(local_model.state_dict())
+        save_mask_scores(local_model.state_dict(), f'/work/LAS/wzhang-lab/mingl/code/backdoor/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/mask_values{id}.txt')
+        mask_values = read_data(f'/work/LAS/wzhang-lab/mingl/code/backdoor/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/mask_values{id}.txt')
+        mask_values = sorted(mask_values, key=lambda x: float(x[2]))
+        print(f'mask_values:{mask_values[0]} - {mask_values[100]} - {mask_values[1000]}')
+        # prune_by_threshold(global_model, mask_values, pruning_max=0.75, pruning_step=0.01)
+        return local_model, mask_values
+
 def replace_bn_with_noisy_bn(module: nn.Module) -> nn.Module:
     """Recursively replace all BatchNorm layers with NoisyBatchNorm layers while preserving weights."""
     device = 'cuda:0'
