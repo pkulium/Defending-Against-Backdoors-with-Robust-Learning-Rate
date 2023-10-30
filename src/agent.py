@@ -13,11 +13,12 @@ from torch.utils.data import DataLoader, SubsetRandomSampler
 
 def train_mask(id, global_model, criterion, train_loader):
         print(f'id:{id}')
+        device = 'cuda:0'
         from copy import deepcopy   
         local_model = deepcopy(global_model)
         local_model = replace_bn_with_noisy_bn(local_model)
         local_model.train()
-        local_model = local_model.to(global_model.device)
+        local_model = local_model.to(device)
         local_model.mask_lr = 0.1
         local_model.anp_eps = 0.4
         local_model.anp_steps = 1
