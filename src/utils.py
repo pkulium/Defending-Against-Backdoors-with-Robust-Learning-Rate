@@ -102,6 +102,50 @@ def distribute_data_dirichlet(dataset, args):
     server_data = np.split(all_indices, server_proportions)[0]  # Take the first split as the server's data
     return dict_users, server_data
 
+def sample_dirichlet_train_data(train_dataset, alpha, n_client, server_dataset):
+        """
+            Input: Number of participants and alpha (param for distribution)
+            Output: A list of indices denoting data in CIFAR training set.
+            Requires: cifar_classes, a preprocessed class-indices dictionary.
+            Sample Method: take a uniformly sampled 10-dimension vector as
+            parameters for
+            dirichlet distribution to sample number of images in each class.
+        """
+
+        total_classes = dict()
+        for ind, x in enumerate(train_dataset):
+            _, label = x
+            if label in total_classes:
+                total_classes[label].append(ind)
+            else:
+                total_classes[label] = [ind]
+
+        class_size = len(total_classes[0])
+        per_client_list = defaultdict(list)
+        n_class = len(total_classes.keys())
+    
+        np.random.seed(111)
+        for n in range(n_class):
+            random.shuffle(total_classes[n])
+            n_party = n_client
+            if server_dataset:
+                sampled_probabilities = class_size * np.random.dirichlet(np.array(n_client * [alpha] + [100]))
+                n_party = n_party + 1
+            else:
+                sampled_probabilities = class_size * np.random.dirichlet(np.array(n_client * [alpha]))
+            for p in range(n_party):
+                n_image = int(round(sampled_probabilities[p]))
+                sampled_list = total_classes[n][:min(len(total_classes[n]), n_image)]
+
+                per_client_list[p].extend(sampled_list)
+                # decrease the chosen samples
+                total_classes[n] = total_classes[n][min(len(total_classes[n]), n_image):]
+
+        # is a list to contain img_id
+        return per_client_list
+
+
+
 def distribute_data(dataset, args, n_classes=10, class_per_agent=10):
     if args.num_agents == 1:
         return {0:range(len(dataset))}

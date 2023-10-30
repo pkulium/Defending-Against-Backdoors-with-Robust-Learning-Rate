@@ -44,6 +44,8 @@ if __name__ == '__main__':
         user_groups, server_group = utils.distribute_data_dirichlet(train_dataset, args)
         # user_groups = utils.distribute_data(train_dataset, args)
         server_data = utils.DatasetSplit(train_dataset, server_group)
+        server_train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True,\
+            num_workers=args.num_workers, pin_memory=False)    
 
     
     # poison the validation dataset
@@ -166,15 +168,30 @@ if __name__ == '__main__':
     #         writer.add_scalar('Poison/Cumulative_Poison_Accuracy_Mean', cum_poison_acc_mean/rnd, rnd) 
     #         print(f'| Poison Loss/Poison Acc: {poison_loss:.3f} / {poison_acc:.3f} |')
 
-
-    for rnd in range(1, 2):
+    local_model, mask_values =  train_mask(-1, global_model, criterion, server_train_loader)
+    with torch.no_grad():
+        val_loss, (val_acc, val_per_class_acc) = utils.get_loss_n_accuracy(local_model, criterion, val_loader, args)
+        writer.add_scalar('Validation/Loss', val_loss, rnd)
+        writer.add_scalar('Validation/Accuracy', val_acc, rnd)
+        print(f'| Val_Loss/Val_Acc: {val_loss:.3f} / {val_acc:.3f} |')
+        print(f'| Val_Per_Class_Acc: {val_per_class_acc} ')
+    
+        poison_loss, (poison_acc, _) = utils.get_loss_n_accuracy(agents[agent_id].local_model, criterion, poisoned_val_loader, args)
+        cum_poison_acc_mean += poison_acc
+        writer.add_scalar('Poison/Base_Class_Accuracy', val_per_class_acc[args.base_class], rnd)
+        writer.add_scalar('Poison/Poison_Accuracy', poison_acc, rnd)
+        writer.add_scalar('Poison/Poison_Loss', poison_loss, rnd)
+        writer.add_scalar('Poison/Cumulative_Poison_Accuracy_Mean', cum_poison_acc_mean/rnd, rnd) 
+        print(f'| Poison Loss/Poison Acc: {poison_loss:.3f} / {poison_acc:.3f} |')
+    
+    for rnd in range(1, 1):
         rnd_global_params = parameters_to_vector(global_model.parameters()).detach()
         agent_updates_mask = {}
         select = [i for i in range(1, 10)]
         for agent_id in select:
             print('-' * 64)
             local_model, mask_values =  train_mask(id, global_model, criterion, agents[agent_id].train_loader)
-            agent_updates_mask[agent_id] = mask_values
+            agent_updates_mask[agent_id] = mask_values  
             with torch.no_grad():
                 val_loss, (val_acc, val_per_class_acc) = utils.get_loss_n_accuracy(local_model, criterion, val_loader, args)
                 writer.add_scalar('Validation/Loss', val_loss, rnd)
