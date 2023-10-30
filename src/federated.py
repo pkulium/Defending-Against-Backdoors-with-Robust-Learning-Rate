@@ -17,6 +17,8 @@ from utils import H5Dataset
 from agent import replace_bn_with_noisy_bn
 from prune_neuron_cifar import prune_by_threshold
 from agent import train_mask
+import data.poison_cifar as poison
+
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark = True
 
@@ -41,11 +43,14 @@ if __name__ == '__main__':
     if args.data != 'fedemnist':
         args.alpha = 1.0
         args.server_alpha = 10000
+        args.val_frac = 0.01
+        args.clean_label = -1
         user_groups, server_group = utils.distribute_data_dirichlet(train_dataset, args)
-        user_groups = utils.distribute_data(train_dataset, args)
-        server_data = utils.DatasetSplit(train_dataset, server_group)
-        server_train_loader = DataLoader(server_data, batch_size=128, shuffle=True,\
-            num_workers=args.num_workers, pin_memory=False)    
+        # server_data = utils.DatasetSplit(train_dataset, server_group)
+        # server_train_loader = DataLoader(server_data, batch_size=128, shuffle=True,\
+            # num_workers=args.num_workers, pin_memory=False)    
+        _, clean_val = poison.split_dataset(dataset=train_dataset, val_frac=args.val_frac,
+                                        perm=np.loadtxt('./data/cifar_shuffle.txt', dtype=int), clean_label = args.clean_label)
 
     
     # poison the validation dataset
