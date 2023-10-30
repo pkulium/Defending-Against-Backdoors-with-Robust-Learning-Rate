@@ -40,7 +40,7 @@ if __name__ == '__main__':
     # fedemnist is handled differently as it doesn't come with pytorch
     if args.data != 'fedemnist':
         args.alpha = 1.0
-        args.server_alpha = 1000
+        args.server_alpha = 10000
         user_groups, server_group = utils.distribute_data_dirichlet(train_dataset, args)
         # user_groups = utils.distribute_data(train_dataset, args)
         server_data = utils.DatasetSplit(train_dataset, server_group)
