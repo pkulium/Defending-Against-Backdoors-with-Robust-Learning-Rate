@@ -6,7 +6,7 @@ from torch.utils.data import Dataset
 from PIL import Image
 
 
-def split_dataset(dataset, val_frac=0.1, perm=None):
+def split_dataset(dataset, val_frac=0.1, perm=None, clean_label=-1):
     """
     :param dataset: The whole dataset which will be split.
     :param val_frac: the fraction of validation set.
@@ -18,16 +18,25 @@ def split_dataset(dataset, val_frac=0.1, perm=None):
         np.random.shuffle(perm)
     nb_val = int(val_frac * len(dataset))
 
+    
     # generate the training set
     train_set = deepcopy(dataset)
     train_set.data = train_set.data[perm[nb_val:]]
     train_set.targets = np.array(train_set.targets)[perm[nb_val:]].tolist()
 
     # generate the test set
-    val_set = deepcopy(dataset)
-    val_set.data = val_set.data[perm[:nb_val]]
-    val_set.targets = np.array(val_set.targets)[perm[:nb_val]].tolist()
+    if clean_label == -1:
+        val_set = deepcopy(dataset)
+        val_set.data = val_set.data[perm[:nb_val]]
+        val_set.targets = np.array(val_set.targets)[perm[:nb_val]].tolist()
+    else:
+        zero_label_indices = np.where(np.array(dataset.targets) == clean_label)[0][:nb_val]
+        val_set = deepcopy(dataset)
+        val_set.data = val_set.data[zero_label_indices]
+        val_set.targets = np.array(val_set.targets)[zero_label_indices].tolist()
     return train_set, val_set
+
+
 
 
 def generate_trigger(trigger_type):
@@ -155,5 +164,4 @@ if __name__ == '__main__':
     x, y = poison_set.__getitem__(0)
     plt.imshow(x)
     plt.show()
-
 
