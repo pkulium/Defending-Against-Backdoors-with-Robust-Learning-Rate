@@ -19,7 +19,7 @@ def train_mask(id, global_model, criterion, train_loader):
         local_model = replace_bn_with_noisy_bn(local_model)
         local_model.train()
         local_model = local_model.to(device)
-        local_model.mask_lr = 0.01
+        local_model.mask_lr = 0.1
         local_model.anp_eps = 0.4
         local_model.anp_steps = 1
         local_model.anp_alpha = 0.2
