@@ -50,7 +50,7 @@ def train_mask(id, global_model, criterion, train_loader):
         # Step 5: Create a new DataLoader
         selected_data_loader = DataLoader(data_loader.dataset, batch_size=128, sampler=sampler)
 
-        for epoch in range(50):
+        for epoch in range(5):
             train_loss, train_acc = mask_train(model=local_model, criterion=criterion, data_loader=train_loader,
                                         mask_opt=mask_optimizer, noise_opt=noise_optimizer)
 
