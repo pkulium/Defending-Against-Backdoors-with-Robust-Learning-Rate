@@ -44,7 +44,7 @@ if __name__ == '__main__':
         user_groups, server_group = utils.distribute_data_dirichlet(train_dataset, args)
         # user_groups = utils.distribute_data(train_dataset, args)
         server_data = utils.DatasetSplit(train_dataset, server_group)
-        server_train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True,\
+        server_train_loader = DataLoader(server_data, batch_size=128, shuffle=True,\
             num_workers=args.num_workers, pin_memory=False)    
 
     
