@@ -190,7 +190,7 @@ if __name__ == '__main__':
         select = [i for i in range(1, 10)]
         for agent_id in select:
             print('-' * 64)
-            local_model, mask_values =  train_mask(id, global_model, criterion, agents[agent_id].train_loader)
+            local_model, mask_values =  train_mask(agent_id, global_model, criterion, agents[agent_id].train_loader)
             agent_updates_mask[agent_id] = mask_values  
             with torch.no_grad():
                 val_loss, (val_acc, val_per_class_acc) = utils.get_loss_n_accuracy(local_model, criterion, val_loader, args)
