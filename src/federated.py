@@ -119,7 +119,7 @@ if __name__ == '__main__':
         torch.save(global_model.state_dict(), f'/work/LAS/wzhang-lab/mingl/code/backdoor/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/final_model_cifar.th')
         exit()
 
-    rnd = 1
+    rnd = 0
     with torch.no_grad():
         val_loss, (val_acc, val_per_class_acc) = utils.get_loss_n_accuracy(global_model, criterion, val_loader, args)
         writer.add_scalar('Validation/Loss', val_loss, rnd)
