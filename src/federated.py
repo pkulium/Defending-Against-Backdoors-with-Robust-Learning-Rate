@@ -18,6 +18,8 @@ from agent import replace_bn_with_noisy_bn
 from prune_neuron_cifar import prune_by_threshold
 from agent import train_mask
 import data.poison_cifar as poison
+from torch.utils.data import DataLoader, RandomSampler
+
 
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark = True
@@ -45,13 +47,15 @@ if __name__ == '__main__':
         args.server_alpha = 10000
         args.val_frac = 0.01
         args.clean_label = -1
+        args.print_every = 500
+        args.batch_size = 128
         user_groups, server_group = utils.distribute_data_dirichlet(train_dataset, args)
-        # server_data = utils.DatasetSplit(train_dataset, server_group)
-        # server_train_loader = DataLoader(server_data, batch_size=128, shuffle=True,\
-            # num_workers=args.num_workers, pin_memory=False)    
         _, clean_val = poison.split_dataset(dataset=train_dataset, val_frac=args.val_frac,
                                         perm=np.loadtxt('./data/cifar_shuffle.txt', dtype=int), clean_label = args.clean_label)
-
+        random_sampler = RandomSampler(data_source=clean_val, replacement=True,
+                                   num_samples=args.print_every * args.batch_size)
+        server_train_loader = DataLoader(clean_val, batch_size=args.batch_size,
+                                  shuffle=False, sampler=random_sampler, num_workers=0)
     
     # poison the validation dataset
     idxs = (val_dataset.targets == args.base_class).nonzero().flatten().tolist()
