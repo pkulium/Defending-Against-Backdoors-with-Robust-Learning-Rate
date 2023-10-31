@@ -268,6 +268,37 @@ def poison_dataset(dataset, args, data_idxs=None, poison_all=False, agent_idx=-1
         dataset.targets[idx] = args.target_class    
     return
 
+from PIL import Image
+def generate_trigger(trigger_type):
+    if trigger_type == 'checkerboard_1corner':  # checkerboard at the right bottom corner
+        pattern = np.zeros(shape=(32, 32, 1), dtype=np.uint8) + 122
+        mask = np.zeros(shape=(32, 32, 1), dtype=np.uint8)
+        trigger_value = [[0, 0, 255], [0, 255, 0], [255, 0, 255]]
+        trigger_region = [-1, 0, 1]
+        for h in trigger_region:
+            for w in trigger_region:
+                pattern[30 + h, 30 + w, 0] = trigger_value[h+1][w+1]
+                mask[30 + h, 30 + w, 0] = 1
+    elif trigger_type == 'checkerboard_4corner':  # checkerboard at four corners
+        pattern = np.zeros(shape=(32, 32, 1), dtype=np.uint8)
+        mask = np.zeros(shape=(32, 32, 1), dtype=np.uint8)
+        trigger_value = [[0, 0, 255], [0, 255, 0], [255, 0, 255]]
+        trigger_region = [-1, 0, 1]
+        for center in [1, 30]:
+            for h in trigger_region:
+                for w in trigger_region:
+                    pattern[center + h, 30 + w, 0] = trigger_value[h + 1][w + 1]
+                    pattern[center + h, 1 + w, 0] = trigger_value[h + 1][- w - 2]
+                    mask[center + h, 30 + w, 0] = 1
+                    mask[center + h, 1 + w, 0] = 1
+    elif trigger_type == 'gaussian_noise':
+        pattern = np.array(Image.open('./data/cifar_gaussian_noise.png'))
+        mask = np.ones(shape=(32, 32, 1), dtype=np.uint8)
+    else:
+        raise ValueError(
+            'Please choose valid poison method: [checkerboard_1corner | checkerboard_4corner | gaussian_noise]')
+    return pattern, mask
+
 
 def add_pattern_bd(x, dataset='cifar10', pattern_type='square', agent_idx=-1):
     """
@@ -313,6 +344,13 @@ def add_pattern_bd(x, dataset='cifar10', pattern_type='square', agent_idx=-1):
                     for d in range(0, 3):  
                         for i in range(start_idx-size//4+1, start_idx+size//2 + 1):
                             x[start_idx+size//2, i][d] = 0
+        else:
+            pattern, mask = generate_trigger(trigger_type=pattern_type)
+            orig = x
+            trigger_alpha = 1.0
+            x = np.clip(
+                (1 - mask) * orig + mask * ((1 - trigger_alpha) * orig + trigger_alpha * pattern), 0, 255
+            ).astype(np.uint8)
                               
     elif dataset == 'fmnist':    
         if pattern_type == 'square':
