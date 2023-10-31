@@ -178,6 +178,8 @@ if __name__ == '__main__':
     #         writer.add_scalar('Poison/Poison_Loss', poison_loss, rnd)
     #         writer.add_scalar('Poison/Cumulative_Poison_Accuracy_Mean', cum_poison_acc_mean/rnd, rnd) 
     #         print(f'| Poison Loss/Poison Acc: {poison_loss:.3f} / {poison_acc:.3f} |')
+    best_val_acc = 0
+    best_poison_acc = 1
     for mask_lr in [0.001, 0.01, 0.1]:
         for anp_eps in [0.01, 0.1, 0.4]:
             for anp_steps in [1, 10]:
@@ -202,8 +204,14 @@ if __name__ == '__main__':
                             writer.add_scalar('Poison/Cumulative_Poison_Accuracy_Mean', cum_poison_acc_mean/rnd, rnd) 
                             print(f'| Poison Loss/Poison Acc: {poison_loss:.3f} / {poison_acc:.3f} |')
 
-
-
+                            if val_acc > best_val_acc:
+                                best_val_acc = val_acc
+                                best_val_acc_ = f'{mask_lr}, {anp_eps}, {anp_steps}, {anp_alpha}, {round}'
+                            if poison_acc < best_poison_acc:
+                                best_poison_acc = poison_acc
+                                best_poison_acc_ = f'{mask_lr}, {anp_eps}, {anp_steps}, {anp_alpha}, {round}'
+    print(f'{best_val_acc}, {best_val_acc_}')
+    print(f'{best_poison_acc}, {best_poison_acc_}')
 
     for rnd in range(1, 1):
         rnd_global_params = parameters_to_vector(global_model.parameters()).detach()
