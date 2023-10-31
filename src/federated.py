@@ -23,7 +23,7 @@ from torch.utils.data import DataLoader, RandomSampler
 
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark = True
-
+SAVE_MODEL_NAME = 'final_model_cifar_non_iid.th'
 
 if __name__ == '__main__':
     args = args_parser()
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     # initialize a model, and the agents
     global_model = models.get_model(args.data).to(args.device)
     if args.rounds == 0:
-        global_model.load_state_dict(torch.load('/work/LAS/wzhang-lab/mingl/code/backdoor/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/final_model_cifar.th'))
+        global_model.load_state_dict(torch.load(f'/work/LAS/wzhang-lab/mingl/code/backdoor/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/{SAVE_MODEL_NAME}'))
         # global_model = replace_bn_with_noisy_bn(global_model)
     agents, agent_data_sizes = [], {}
     for _id in range(0, args.num_agents):
@@ -116,7 +116,7 @@ if __name__ == '__main__':
 
     print('Training has finished!')
     if args.rounds != 0:
-        torch.save(global_model.state_dict(), f'/work/LAS/wzhang-lab/mingl/code/backdoor/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/final_model_cifar_non_iid.th')
+        torch.save(global_model.state_dict(), f'/work/LAS/wzhang-lab/mingl/code/backdoor/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/{SAVE_MODEL_NAME}')
         exit()
 
     rnd = 0
