@@ -178,26 +178,33 @@ if __name__ == '__main__':
     #         writer.add_scalar('Poison/Poison_Loss', poison_loss, rnd)
     #         writer.add_scalar('Poison/Cumulative_Poison_Accuracy_Mean', cum_poison_acc_mean/rnd, rnd) 
     #         print(f'| Poison Loss/Poison Acc: {poison_loss:.3f} / {poison_acc:.3f} |')
+    for mask_lr in (0.1, 0.01, 0.001):
+        for anp_eps in [0.01, 0.1, 0.4]:
+            for anp_steps in [1, 10]:
+                for anp_alpha in [0.1, 0.5, 0.9]:
+                    for round in [5, 25, 50]:
+                        local_model, mask_values =  train_mask(-1, global_model, criterion, server_train_loader, mask_lr, anp_eps, anp_steps, anp_alpha, round)
+                        print('-' * 64)
+                        print('mask_lr, anp_eps, anp_steps, anp_alpha, round')
+                        print(f'{mask_lr}, {anp_eps}, {anp_steps}, {anp_alpha}, {round}')
+                        with torch.no_grad():
+                            val_loss, (val_acc, val_per_class_acc) = utils.get_loss_n_accuracy(local_model, criterion, val_loader, args)
+                            writer.add_scalar('Validation/Loss', val_loss, rnd)
+                            writer.add_scalar('Validation/Accuracy', val_acc, rnd)
+                            print(f'| Val_Loss/Val_Acc: {val_loss:.3f} / {val_acc:.3f} |')
+                            print(f'| Val_Per_Class_Acc: {val_per_class_acc} ')
+                        
+                            poison_loss, (poison_acc, _) = utils.get_loss_n_accuracy(local_model, criterion, poisoned_val_loader, args)
+                            cum_poison_acc_mean += poison_acc
+                            writer.add_scalar('Poison/Base_Class_Accuracy', val_per_class_acc[args.base_class], rnd)
+                            writer.add_scalar('Poison/Poison_Accuracy', poison_acc, rnd)
+                            writer.add_scalar('Poison/Poison_Loss', poison_loss, rnd)
+                            writer.add_scalar('Poison/Cumulative_Poison_Accuracy_Mean', cum_poison_acc_mean/rnd, rnd) 
+                            print(f'| Poison Loss/Poison Acc: {poison_loss:.3f} / {poison_acc:.3f} |')
 
-    local_model, mask_values =  train_mask(-1, global_model, criterion, server_train_loader)
-    with torch.no_grad():
-        val_loss, (val_acc, val_per_class_acc) = utils.get_loss_n_accuracy(local_model, criterion, val_loader, args)
-        writer.add_scalar('Validation/Loss', val_loss, rnd)
-        writer.add_scalar('Validation/Accuracy', val_acc, rnd)
-        print(f'| Val_Loss/Val_Acc: {val_loss:.3f} / {val_acc:.3f} |')
-        print(f'| Val_Per_Class_Acc: {val_per_class_acc} ')
-    
-        poison_loss, (poison_acc, _) = utils.get_loss_n_accuracy(local_model, criterion, poisoned_val_loader, args)
-        cum_poison_acc_mean += poison_acc
-        writer.add_scalar('Poison/Base_Class_Accuracy', val_per_class_acc[args.base_class], rnd)
-        writer.add_scalar('Poison/Poison_Accuracy', poison_acc, rnd)
-        writer.add_scalar('Poison/Poison_Loss', poison_loss, rnd)
-        writer.add_scalar('Poison/Cumulative_Poison_Accuracy_Mean', cum_poison_acc_mean/rnd, rnd) 
-        print(f'| Poison Loss/Poison Acc: {poison_loss:.3f} / {poison_acc:.3f} |')
 
 
 
-        
     for rnd in range(1, 1):
         rnd_global_params = parameters_to_vector(global_model.parameters()).detach()
         agent_updates_mask = {}
