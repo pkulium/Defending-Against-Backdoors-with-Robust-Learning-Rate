@@ -23,7 +23,7 @@ from torch.utils.data import DataLoader, RandomSampler
 
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark = True
-SAVE_MODEL_NAME = 'final_model_cifar_non_iid.th'
+SAVE_MODEL_NAME = 'final_model_cifar_non_iid_200round.th'
 
 if __name__ == '__main__':
     args = args_parser()
