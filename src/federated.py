@@ -26,7 +26,7 @@ torch.backends.cudnn.benchmark = True
 
 
 if __name__ == '__main__':
-    args = args_parser()
+    args = args_parser()xr
     args.server_lr = args.server_lr if args.aggr == 'sign' else 1.0
     utils.print_exp_details(args)
     
@@ -116,7 +116,7 @@ if __name__ == '__main__':
 
     print('Training has finished!')
     if args.rounds != 0:
-        torch.save(global_model.state_dict(), f'/work/LAS/wzhang-lab/mingl/code/backdoor/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/final_model_cifar.th')
+        torch.save(global_model.state_dict(), f'/work/LAS/wzhang-lab/mingl/code/backdoor/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/final_model_cifar_non_iid.th')
         exit()
 
     rnd = 0
