@@ -26,7 +26,7 @@ torch.backends.cudnn.benchmark = True
 
 
 if __name__ == '__main__':
-    args = args_parser()xr
+    args = args_parser()
     args.server_lr = args.server_lr if args.aggr == 'sign' else 1.0
     utils.print_exp_details(args)
     
