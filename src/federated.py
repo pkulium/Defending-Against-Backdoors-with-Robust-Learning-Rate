@@ -181,9 +181,9 @@ if __name__ == '__main__':
     best_val_acc = 0
     best_poison_acc = 1
     for mask_lr in [0.01, 0.1]:
-        for anp_eps in [0.01, 0.1, 0.4]:
+        for anp_eps in [0.1, 0.4]:
             for anp_steps in [1, 10]:
-                for anp_alpha in [0.1, 0.5, 0.9]:
+                for anp_alpha in [0.2, 0.5, 0.9]:
                     for round in [5, 25, 50]:
                         local_model, mask_values =  train_mask(-1, global_model, criterion, server_train_loader, mask_lr, anp_eps, anp_steps, anp_alpha, round)
                         print('-' * 64)
