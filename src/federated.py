@@ -185,7 +185,7 @@ if __name__ == '__main__':
     #         for anp_steps in [1, 10]:
     #             for anp_alpha in [0.2, 0.5, 0.9]:
     #                 for round in [5, 25, 50]:
-    for _ in range(100):
+    for _ in range(10):
         for mask_lr in [0.1]:
             for anp_eps in [0.4]:
                 for anp_steps in [1]:
