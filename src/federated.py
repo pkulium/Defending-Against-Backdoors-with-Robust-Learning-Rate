@@ -49,7 +49,8 @@ if __name__ == '__main__':
         args.clean_label = -1
         args.print_every = 500
         args.batch_size = 128
-        user_groups, server_group = utils.distribute_data_dirichlet(train_dataset, args)
+        user_groups = utils.distribute_data_dirichlet(train_dataset, args)
+
         _, clean_val = poison.split_dataset(dataset=train_dataset, val_frac=args.val_frac,
                                         perm=np.loadtxt('./data/cifar_shuffle.txt', dtype=int), clean_label = args.clean_label)
         random_sampler = RandomSampler(data_source=clean_val, replacement=True,

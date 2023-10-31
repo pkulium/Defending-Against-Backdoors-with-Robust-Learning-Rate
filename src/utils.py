@@ -94,13 +94,13 @@ def distribute_data_dirichlet(dataset, args):
         dict_users[user_idx] = idx_batch[user_idx]
         np.random.shuffle(dict_users[user_idx])
 
-    # Create IID dataset for the server
-    all_indices = list(range(N))
-    np.random.shuffle(all_indices)
-    server_proportions = np.random.dirichlet(np.repeat(args.server_alpha, client_num))
-    server_proportions = (np.cumsum(server_proportions) * N).astype(int)[:-1]
-    server_data = np.split(all_indices, server_proportions)[0]  # Take the first split as the server's data
-    return dict_users, server_data
+    # # Create IID dataset for the server
+    # all_indices = list(range(N))
+    # np.random.shuffle(all_indices)
+    # server_proportions = np.random.dirichlet(np.repeat(args.server_alpha, client_num))
+    # server_proportions = (np.cumsum(server_proportions) * N).astype(int)[:-1]
+    # server_data = np.split(all_indices, server_proportions)[0]  # Take the first split as the server's data
+    return dict_users
 
 def sample_dirichlet_train_data(train_dataset, alpha, n_client, server_dataset):
         """
