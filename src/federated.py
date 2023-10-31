@@ -181,7 +181,7 @@ if __name__ == '__main__':
     best_val_acc = 0
     best_poison_acc = 1
     for mask_lr in [0.01, 0.1]:
-        for anp_eps in [0.1, 0.4]:
+        for anp_eps in [0.1, 0.4, 1.0]:
             for anp_steps in [1, 10]:
                 for anp_alpha in [0.2, 0.5, 0.9]:
                     for round in [5, 25, 50]:
