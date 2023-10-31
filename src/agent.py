@@ -22,7 +22,7 @@ def train_mask(id, global_model, criterion, train_loader):
         local_model.mask_lr = 0.01
         local_model.anp_eps = 0.4
         local_model.anp_steps = 1
-        local_model.anp_alpha = 0.2
+        local_model.anp_alpha = 0.01
         mask_scores = None
 
         local_model.train()  
