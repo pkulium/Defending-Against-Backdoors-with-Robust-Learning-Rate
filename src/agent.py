@@ -11,7 +11,7 @@ from optimize_mask_cifar import *
 from prune_neuron_cifar import *
 from torch.utils.data import DataLoader, SubsetRandomSampler
 
-def train_mask(id, global_model, criterion, train_loader):
+def train_mask(id, global_model, criterion, train_loader, mask_lr, anp_eps, anp_steps, anp_alpha, round):
         print(f'id:{id}')
         device = 'cuda:0'
         from copy import deepcopy   
@@ -19,10 +19,10 @@ def train_mask(id, global_model, criterion, train_loader):
         local_model = replace_bn_with_noisy_bn(local_model)
         local_model.train()
         local_model = local_model.to(device)
-        local_model.mask_lr = 0.01
-        local_model.anp_eps = 0.4
-        local_model.anp_steps = 1
-        local_model.anp_alpha = 0.1
+        local_model.mask_lr = mask_lr
+        local_model.anp_eps = anp_eps
+        local_model.anp_steps = anp_steps
+        local_model.anp_alpha = anp_alpha
         mask_scores = None
 
         local_model.train()  
@@ -32,7 +32,7 @@ def train_mask(id, global_model, criterion, train_loader):
         noise_params = [v for n, v in parameters if "neuron_noise" in n]
         noise_optimizer = torch.optim.SGD(noise_params, lr=local_model.anp_eps / local_model.anp_steps)
 
-        for epoch in range(100):
+        for epoch in range(round):
             train_loss, train_acc = mask_train(model=local_model, criterion=criterion, data_loader=train_loader,
                                         mask_opt=mask_optimizer, noise_opt=noise_optimizer)
             print(f'train_loss:{train_loss} train_acc:{train_acc}')
