@@ -19,7 +19,7 @@ def train_mask(id, global_model, criterion, train_loader):
         local_model = replace_bn_with_noisy_bn(local_model)
         local_model.train()
         local_model = local_model.to(device)
-        local_model.mask_lr = 0.1
+        local_model.mask_lr = 0.01
         local_model.anp_eps = 0.4
         local_model.anp_steps = 1
         local_model.anp_alpha = 0.2
@@ -32,7 +32,7 @@ def train_mask(id, global_model, criterion, train_loader):
         noise_params = [v for n, v in parameters if "neuron_noise" in n]
         noise_optimizer = torch.optim.SGD(noise_params, lr=local_model.anp_eps / local_model.anp_steps)
 
-        for epoch in range(25):
+        for epoch in range(10):
             train_loss, train_acc = mask_train(model=local_model, criterion=criterion, data_loader=train_loader,
                                         mask_opt=mask_optimizer, noise_opt=noise_optimizer)
 
