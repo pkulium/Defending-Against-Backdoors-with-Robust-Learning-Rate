@@ -117,6 +117,7 @@ if __name__ == '__main__':
     print('Training has finished!')
     if args.rounds != 0:
         torch.save(global_model.state_dict(), f'/work/LAS/wzhang-lab/mingl/code/backdoor/Defending-Against-Backdoors-with-Robust-Learning-Rate/save/final_model_cifar.th')
+        exit()
 
     rnd = 1
     with torch.no_grad():
