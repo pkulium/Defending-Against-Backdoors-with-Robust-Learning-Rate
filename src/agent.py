@@ -32,25 +32,7 @@ def train_mask(id, global_model, criterion, train_loader):
         noise_params = [v for n, v in parameters if "neuron_noise" in n]
         noise_optimizer = torch.optim.SGD(noise_params, lr=local_model.anp_eps / local_model.anp_steps)
 
-        # Step 1: Create a list of all indices
-        data_loader=train_loader
-        clean_sample_size = 500
-        all_indices = list(range(len(data_loader.dataset)))
-
-        # Step 2: Shuffle these indices
-        torch.manual_seed(42)  # For reproducibility
-        torch.utils.data.random_split(all_indices, [len(data_loader.dataset)])  # This will shuffle the indices
-
-        # Step 3: Select the first 500 indices
-        selected_indices = all_indices[:clean_sample_size]
-
-        # Step 4: Use SubsetRandomSampler
-        sampler = SubsetRandomSampler(selected_indices)
-
-        # Step 5: Create a new DataLoader
-        selected_data_loader = DataLoader(data_loader.dataset, batch_size=128, sampler=sampler)
-
-        for epoch in range(25):
+        for epoch in range(5):
             train_loss, train_acc = mask_train(model=local_model, criterion=criterion, data_loader=train_loader,
                                         mask_opt=mask_optimizer, noise_opt=noise_optimizer)
 

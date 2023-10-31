@@ -44,7 +44,7 @@ if __name__ == '__main__':
     # fedemnist is handled differently as it doesn't come with pytorch
     if args.data != 'fedemnist':
         args.alpha = 1.0
-        args.server_alpha = 10000
+        args.server_alpha = 1000
         args.val_frac = 0.01
         args.clean_label = -1
         args.print_every = 500
