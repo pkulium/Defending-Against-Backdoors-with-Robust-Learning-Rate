@@ -178,7 +178,7 @@ if __name__ == '__main__':
     #         writer.add_scalar('Poison/Poison_Loss', poison_loss, rnd)
     #         writer.add_scalar('Poison/Cumulative_Poison_Accuracy_Mean', cum_poison_acc_mean/rnd, rnd) 
     #         print(f'| Poison Loss/Poison Acc: {poison_loss:.3f} / {poison_acc:.3f} |')
-    for mask_lr in (0.1, 0.01, 0.001):
+    for mask_lr in [0.001, 0.01, 0.1]:
         for anp_eps in [0.01, 0.1, 0.4]:
             for anp_steps in [1, 10]:
                 for anp_alpha in [0.1, 0.5, 0.9]:
